@@ -1,0 +1,3 @@
+posix-ipc==1.0.5
+serial==0.0.97
+argparse==1.4.0

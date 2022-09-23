@@ -2,7 +2,7 @@ import serial
 import time
 import argparse
 
-# import posix_ipc
+import posix_ipc
 
 
 class GRBL:
@@ -17,6 +17,9 @@ class GRBL:
     def home(self, log=False):
         self.ser.flushInput()
         self.ser.write("$H\n".encode("utf-8"))
+        print(serca.ser.readline())
+        # self.ser.write("G92X0Y0Z0\n".encode("utf-8"))
+        self.ser.write("G10P0L20X0Y0Z0\n".encode("utf-8"))
         print(serca.ser.readline())
 
     def send(self, lines, log=False):
@@ -38,7 +41,7 @@ class GRBL:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Stream g-code to grbl. (pySerial and argparse libraries required)"
+        deion="Stream g-code to grbl. (pySerial and argparse libraries required)"
     )
     parser.add_argument("port", help="GRBL serial port")
     # parser.add_argument('file', help='G-code file to stream', required=False)
@@ -46,22 +49,34 @@ if __name__ == "__main__":
 
     print("Iniciando GRBL...")
     serca = GRBL(port)
-    # print('Casa')
-    # serca.home(True)
+    print('Casa')
+    serca.home(True)
 
-    # mq = posix_ipc.MessageQueue("/cuts", posix_ipc.O_CREAT)
-    # ack_mq = posix_ipc.MessageQueue("/ack", posix_ipc.O_CREAT)
-    # print("Conectado a fila")
-    # while True:
-    #     msg = mq.receive()
-    #     gcode_lines = msg[0].decode("utf-8").split("\n")
-    #     print("Executando GCODE:")
-    #     print(gcode_lines)
-    #     serca.send(gcode_lines, log=True)
-    #     ack_mq.send("ok")
+    mq = posix_ipc.MessageQueue("/cuts", posix_ipc.O_CREAT)
+    ack_mq = posix_ipc.MessageQueue("/ack", posix_ipc.O_CREAT)
+    print("Conectado a fila")
+    while True:
+        msg = mq.receive()
+        gcode_lines = msg[0].decode("utf-8").split("\n")
+        print("Executando GCODE:")
+        print(gcode_lines)
+        serca.send(gcode_lines, log=True)
+        ack_mq.send("ok")
 
     print("Mandando")
-    serca.send(["G21G91X100Y100F25"], log=True)
+    # serca.send(
+    #     [
+    #         "G90",
+    #         "G21",
+    #         "G01X0Y5.2F2000",
+    #         "G01X100Y5.2F2000",
+    #         "G01X100Y105.2F2000",
+    #         "G01X200Y105.2F2000",
+    #         "G01Z-126F1000",
+    #         "G01X100Y5.2F2000",
+    #         "G01Z-0F1000",
+    #     ]
+    #     , log=True)
 
     # Escreve aqui
     # with open("file.gcode") as f:
